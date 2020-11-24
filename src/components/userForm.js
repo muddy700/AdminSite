@@ -1,5 +1,4 @@
 import { Card , Form,  Button, Select , Space , Typography, Input} from 'antd';
-import { EyeInvisibleOutlined, EyeTwoTone } from '@ant-design/icons';
 import '../index.css'
 
 const layout = {
@@ -27,7 +26,6 @@ export const UserForm = (props) => {
        }
     const onEmailChange = (value) => {
         setActiveUser({...activeUser , email : value})
-        console.log('called')
     }
     const onStatusChange = (value) => {
         setActiveUser({...activeUser , enabled : value})
@@ -35,10 +33,6 @@ export const UserForm = (props) => {
     const onPasswordChange = (value) => {
         setActiveUser({...activeUser , password : value})
     }
-    // const addUser = () => {
-    //     onFinish()
-    //     form.resetFields()
-    // }
     return(
         <Space>
 
@@ -59,8 +53,16 @@ export const UserForm = (props) => {
                         <option value="False">False</option>
                     </Select>
                 </Form.Item>
-                <Form.Item label="Password" name="password" rules={[{ required : false , message : 'Password Required!'}]}>
-                <Input.Password placeholder="input password" iconRender={visible => (visible ? <EyeTwoTone /> : <EyeInvisibleOutlined />)} defaultValue={activeUser.password} onChange={(e) => onPasswordChange(e.target.value)} />                </Form.Item>
+                <Form.Item label="Password" name="password" rules={[{ required : true , message : 'Password Required!'}  ,
+                    () => ({ validator(rule, value) { if ( value.length >= 5 ) { return Promise.resolve(); }
+                    return Promise.reject('Password Is Too Short!'); }, })]} hasFeedback>
+                    <Input.Password placeholder="Input password" onChange={(e) => onPasswordChange(e.target.value)} />         
+                </Form.Item>
+                <Form.Item label="Comfirm Password" name="comfirmPassword" rules={[{ required : true , message : 'Password Required!'} , 
+                     ({ getFieldValue }) => ({ validator(rule, value) { if (!value || getFieldValue('password') === value) { return Promise.resolve(); }
+                    return Promise.reject('Passwords Did Not Match!'); }, }),]} dependencies={['password']} hasFeedback > 
+                    <Input.Password placeholder="Input password" onChange={(e) => onPasswordChange(e.target.value)} />         
+                </Form.Item>
                 <Form.Item {...tailLayout}>
                     <Button type="primary" htmlType="submit" >Add</Button>
                 </Form.Item>

@@ -3,7 +3,7 @@ import '../index.css'
 // import axios from 'axios'
 // import  API from '../api'
 import React , { useState } from 'react'
-import { Card , Table , Button , Popconfirm, InputNumber, Space} from 'antd'
+import { Card , Table , Button , Popconfirm, InputNumber, message , Space} from 'antd'
 
 
 export const UsersList = (props) => {
@@ -70,6 +70,7 @@ const onSelectChange = (selectedRowKeys) => {
              setUsers(remainingUsers)
             //  setselectedUsers([])
             //  setSelectedRowKeys([])
+            message.success('1 User Deleted')
              setloading(false)
          }, 500)
     }
@@ -79,10 +80,12 @@ const onSelectChange = (selectedRowKeys) => {
       setTimeout(  () => {
       const remainingUsers = users.filter((data) => !selectedUsers.includes(data.user_id))
       setUsers(remainingUsers)
+      const deleted = selectedUsers.length
+      message.success(deleted + ' Users Deleted')
       setselectedUsers([])
       setSelectedRowKeys([])
       setloading(false)
-    } , 500)
+    } , 300)
     }
 
     const hasSelected = selectedUsers.length > 0

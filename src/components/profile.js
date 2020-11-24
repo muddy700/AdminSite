@@ -11,7 +11,7 @@ export const Profile = (props) => {
     const name = loggedUser.firstName + ' ' + loggedUser.lastName
     return(
         <Space size={200} style={{}}>
-            <Card title="Profile" style={{ width : 600 }} >
+            <Card style={{ width : 600 }} >
                 <Divider orientation = "center" > Personal Info </Divider>
                 <Row style={rowStyle}>
                     <Col span={6} style={colStyle}> First Name: </Col>
@@ -40,6 +40,10 @@ export const Profile = (props) => {
                 <Row style={rowStyle} >
                     <Col span={6} style={colStyle}> Email: </Col>
                     <Col span={12}> {loggedUser.email} </Col>
+                </Row>
+                <Row style={rowStyle} >
+                    <Col span={6} style={colStyle}> Password: </Col>
+                    <Col span={12}> {loggedUser.password} </Col>
                 </Row>
             </Card>
 

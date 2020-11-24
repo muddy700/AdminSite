@@ -1,4 +1,4 @@
-import { DashboardOutlined , UserAddOutlined , TeamOutlined , UserOutlined , SettingOutlined , MenuFoldOutlined , MenuUnfoldOutlined } from '@ant-design/icons';
+import { DashboardOutlined , UserAddOutlined , TeamOutlined , UserOutlined , KeyOutlined , MenuFoldOutlined , MenuUnfoldOutlined } from '@ant-design/icons';
 import { Layout , Menu , Breadcrumb , Drawer , message , Form } from 'antd'
 import { UsersList , SingleUser } from './components/usersList'
 import { Dashboard } from './components/dashboard'
@@ -29,7 +29,7 @@ let Id = 0
       { key : '11' , user_id: 11, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'True' }, 
     ]
 
-    const loggedUser = { 
+    const loggedIn = { 
       firstName : 'MOHAMED' , 
       lastName : 'MOHAMED' , 
       userName : 'User-007' ,
@@ -37,6 +37,7 @@ let Id = 0
       position : 'Admin' ,
       phone : '0789 101 112' ,
       email : 'user@gmail.com' , 
+      password : '1234'
     }
     
     // const user ={ key : '1' , user_id: 1, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'false' }
@@ -44,8 +45,9 @@ let Id = 0
     const [collapsed , setCollapsed ] = useState(false)
     const [activeUser , setActiveUser] = useState({})
     const [users, setUsers] = useState(initialUsers)
-    const [render , setRender ] = useState(5)
+    const [render , setRender ] = useState(1)
     const [form] = Form.useForm()
+    const [loggedUser, setloggedUser] = useState(loggedIn)
     // const [visible , setvisible ] = useState(false)
 
 
@@ -85,7 +87,7 @@ let Id = 0
         const selected = users.find((data) => data.user_id === value)
         setActiveUser(selected)
         setEditingMode(true)
-        form.setFieldsValue({ username : selected.username , email : selected.email , enabled : selected.enabled , password : selected.password})
+        form.setFieldsValue({ username : selected.username , email : selected.email , enabled : selected.enabled , password : selected.password , comfirmPassword : selected.password})
       }
 
       const onClose = () => {
@@ -97,7 +99,7 @@ let Id = 0
       const userform = <UserForm activeUser={activeUser} setActiveUser={setActiveUser} onFinish={onFinish} form={form} users={users} editingMode={editingMode} />
       const allUsers = <UsersList users={users} setUsers={setUsers}  editUserInfo={editUserInfo} />
       const dashboard = <Dashboard users={users} />
-      const settings = <Settings />
+      const settings = <Settings loggedUser={loggedUser} setloggedUser={setloggedUser} />
       const byId = <SingleUser />
       const profile = <Profile loggedUser={loggedUser} />
 
@@ -141,7 +143,7 @@ let Id = 0
             <Menu.Item key="5" icon={<UserOutlined />} onClick={handleMenuClick}>
               Profile
             </Menu.Item>
-            <Menu.Item key="6" icon={<SettingOutlined />} onClick={handleMenuClick}>
+            <Menu.Item key="6" icon={<KeyOutlined />} onClick={handleMenuClick}>
               Change Password
             </Menu.Item>
           </Menu>
