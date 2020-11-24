@@ -29,18 +29,28 @@ let Id = 0
       { key : '11' , user_id: 11, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'True' }, 
     ]
 
+    const loggedUser = { 
+      firstName : 'MOHAMED' , 
+      lastName : 'MOHAMED' , 
+      userName : 'User-007' ,
+      department : 'CSE' ,
+      position : 'Admin' ,
+      phone : '0789 101 112' ,
+      email : 'user@gmail.com' , 
+    }
+    
     // const user ={ key : '1' , user_id: 1, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'false' }
     const [editingMode, setEditingMode] = useState(false)
     const [collapsed , setCollapsed ] = useState(false)
     const [activeUser , setActiveUser] = useState({})
     const [users, setUsers] = useState(initialUsers)
-    const [render , setRender ] = useState(1)
+    const [render , setRender ] = useState(5)
     const [form] = Form.useForm()
     // const [visible , setvisible ] = useState(false)
 
 
     const onFinish = () => {
-      if(editingMode) {
+      if(editingMode) { 
         const newUsersList = users.map((data) => {
           if(data.user_id === activeUser.user_id) {
             return {...data , username : activeUser.username , email : activeUser.email , enabled : activeUser.enabled , password : activeUser.password}
@@ -89,7 +99,7 @@ let Id = 0
       const dashboard = <Dashboard users={users} />
       const settings = <Settings />
       const byId = <SingleUser />
-      const profile = <Profile />
+      const profile = <Profile loggedUser={loggedUser} />
 
       const draw = <Drawer
           title="Editing Mode"

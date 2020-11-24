@@ -7,19 +7,20 @@ export const Dashboard = (props) => {
     const { users } = props
     const { Title } = Typography
     const enabled = users.filter((data) => data.enabled === 'True')
+    const cardStyle = {width : 300 , backgroundColor : 'lightgrey' , textAlign : 'center'}
     
     return(
-        <Space>
-            <Card title="Registered Users" style={{width : 300 , backgroundColor : 'lightgrey' , textAlign : 'center'}}>
+        <Space size={40}>
+            <Card hoverable title="Registered Users" style={cardStyle}>
                 <Title level={2}> {users.length} </Title>
             </Card>
-            <Card title="Enabled Users" style={{width : 300 , backgroundColor : 'lightgrey' , textAlign : 'center'}}>
+            <Card hoverable title="Enabled Users" style={cardStyle}>
                 <Title level={2}> {enabled.length} </Title>
             </Card>
-            <Card title="Disabled Users" style={{width : 300 , backgroundColor : 'lightgrey' , textAlign : 'center'}}>
+            <Card hoverable title="Disabled Users" style={cardStyle}>
                 <Title level={2}> {users.length -enabled.length} </Title>
             </Card>
-            <Card title="Online Users" style={{width : 300 , backgroundColor : 'lightgrey' , textAlign : 'center' }}>
+            <Card hoverable title="Online Users" style={cardStyle}>
                 <Title level={2}> 0 </Title>
             </Card>
         </Space>
