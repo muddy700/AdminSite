@@ -1,19 +1,16 @@
 @import '~antd/dist/antd.css';
 
 .logo {
-  height: 32px;
+  height: auto;
   margin: 16px;
   background: rgba(255, 255, 255, 0.3);
 }
-
 .site-layout .site-layout-background {
   background: #fff;
   overflow: hidden;
   position: relative;
-}
-
-.site-layout{
-  /* height: 700px; */
+  /* font-weight: bolder; */
+  font-size: xx-large;
 }
 .trigger {
   font-size: 18px;
@@ -21,8 +18,8 @@
   padding: 0 24px;
   cursor: pointer;
   transition: color 0.3s;
+  margin-right: 350px;
 }
-
 .trigger:hover {
   color: #1890ff;
 }

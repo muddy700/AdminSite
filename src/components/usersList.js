@@ -1,7 +1,8 @@
 import { DeleteFilled, EditFilled } from '@ant-design/icons';
+import axios from 'axios'
 import '../index.css'
 // import axios from 'axios'
-// import  API from '../api'
+import  API from '../api'
 import React , { useState } from 'react'
 import { Card , Table , Button , Popconfirm, InputNumber, message , Space} from 'antd'
 
@@ -43,7 +44,7 @@ export const UsersList = (props) => {
         dataIndex: 'action2',
         render : (text , record) =>
         users.length >=1 ? (
-            <Popconfirm title="Sure to delete?" onConfirm={() => deleteSingleUser(record.key)}>
+            <Popconfirm title="Sure to delete?" onConfirm={() => deleteSingleUser(record.user_id)}>
               <Button type="danger"> <DeleteFilled /> </Button>
             </Popconfirm>
         ) : null,
@@ -66,11 +67,23 @@ const onSelectChange = (selectedRowKeys) => {
     const deleteSingleUser = (value) => {
          setloading(true)
          setTimeout(() => {
-             const remainingUsers = users.filter((data) => data.key !== value)
-             setUsers(remainingUsers)
+            //  const remainingUsers = users.filter((data) => data.key !== value)
+            //  setUsers(remainingUsers)
             //  setselectedUsers([])
             //  setSelectedRowKeys([])
+            //  axios.delete('https://usbn.herokuapp.com/api/v1/users/${value}')
+            //      .then(res => {
+            //          console.log(res);
+            //          console.log(res.data);
+            //      })
+            const response =
+            //  await
+             API.delete('users/${value}');
+               console.log(response);
+               console.log(response.data);
+
             message.success('1 User Deleted')
+            // https: //usbn.herokuapp.com/api/v1/users
              setloading(false)
          }, 500)
     }

@@ -1,13 +1,17 @@
 import { DashboardOutlined , UserAddOutlined , TeamOutlined , UserOutlined , KeyOutlined , MenuFoldOutlined , MenuUnfoldOutlined } from '@ant-design/icons';
-import { Layout , Menu , Breadcrumb , Drawer , message , Form } from 'antd'
+import { Layout , Menu , Breadcrumb , Drawer , Image , message , Form } from 'antd'
 import { UsersList , SingleUser } from './components/usersList'
 import { Dashboard } from './components/dashboard'
 import { Settings } from './components/settings'
 import { UserForm } from './components/userForm'
 import { Profile } from './components/profile'
-import React , { useState } from 'react'
+import React , { useState , useEffect } from 'react'
+import dp from './images/dp.jpg'
+import axios from 'axios'
 import './index.css'
-// import API from  './api'
+import API from  './api'
+
+// https: //usbn.herokuapp.com/api/v1/users
 
 const { Header, Content, Footer, Sider } = Layout
 const { SubMenu } = Menu
@@ -15,19 +19,19 @@ let Id = 0
 
   const  App = () => {
 
-    const initialUsers = [
-      { key : '1' , user_id: 1, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'False' }, 
-      { key : '2' , user_id: 2, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'False' }, 
-      { key : '3' , user_id: 3, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'False' }, 
-      { key : '4' , user_id: 4, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'False' }, 
-      { key : '5' , user_id: 5, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'True' }, 
-      { key : '6' , user_id: 6, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'True' }, 
-      { key : '7' , user_id: 7, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'True' }, 
-      { key : '8' , user_id: 8, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'True' }, 
-      { key : '9' , user_id: 9, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'True' }, 
-      { key : '10' , user_id: 10, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'True' }, 
-      { key : '11' , user_id: 11, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'True' }, 
-    ]
+    // const initialUsers = [
+    //   { key : '1' , user_id: 1, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'False' }, 
+    //   { key : '2' , user_id: 2, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'False' }, 
+    //   { key : '3' , user_id: 3, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'False' }, 
+    //   { key : '4' , user_id: 4, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'False' }, 
+    //   { key : '5' , user_id: 5, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'True' }, 
+    //   { key : '6' , user_id: 6, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'True' }, 
+    //   { key : '7' , user_id: 7, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'True' }, 
+    //   { key : '8' , user_id: 8, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'True' }, 
+    //   { key : '9' , user_id: 9, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'True' }, 
+    //   { key : '10' , user_id: 10, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'True' }, 
+    //   { key : '11' , user_id: 11, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'True' }, 
+    // ]
 
     const loggedIn = { 
       firstName : 'MOHAMED' , 
@@ -44,12 +48,22 @@ let Id = 0
     const [editingMode, setEditingMode] = useState(false)
     const [collapsed , setCollapsed ] = useState(false)
     const [activeUser , setActiveUser] = useState({})
-    const [users, setUsers] = useState(initialUsers)
+    const [users, setUsers] = useState([])
     const [render , setRender ] = useState(1)
     const [form] = Form.useForm()
     const [loggedUser, setloggedUser] = useState(loggedIn)
-    // const [visible , setvisible ] = useState(false)
 
+    const pullUsers = () => {
+        API.get('users')
+          .then(res => {
+            const persons = res.data;
+        setUsers(persons)
+          })
+    }
+
+    useEffect(() => {
+      pullUsers()
+    })
 
     const onFinish = () => {
       if(editingMode) { 
@@ -67,9 +81,15 @@ let Id = 0
 
       else{
         
-        Id += 1
-        setUsers([...users , {...activeUser , key : Id , user_id : Id}])
+        // Id += 1
+        // setUsers([...users , {...activeUser , key : Id , user_id : Id}])
         message.success(activeUser.username + ' Added Successful')
+        // https: //usbn.herokuapp.com/api/v1/users/create
+        axios.post('https://usbn.herokuapp.com/api/v1/users/create', { activeUser })
+      .then(res => {
+        console.log(res);
+        console.log(res.data);
+      })
       }
       setActiveUser({ })
       form.resetFields()
@@ -103,6 +123,7 @@ let Id = 0
       const settings = <Settings loggedUser={loggedUser} setloggedUser={setloggedUser} />
       const byId = <SingleUser />
       const profile = <Profile loggedUser={loggedUser} />
+      const toggleButton = collapsed ? <MenuUnfoldOutlined className="trigger" onClick={toggle} /> : <MenuFoldOutlined className="trigger"  onClick={toggle} />
 
       const draw = <Drawer
           title="Editing Mode"
@@ -116,7 +137,6 @@ let Id = 0
           {userform}
         </Drawer>
 
-
     const components = {
       1 : dashboard , 
       2 : userform , 
@@ -129,7 +149,7 @@ let Id = 0
    return (
       <Layout style={{ minHeight: '100vh'}}>
         <Sider collapsible collapsed={collapsed} trigger={null}>
-          <div className="logo" />
+          <div className="logo"> <Image height={120} src={dp} /> </div>
           <Menu theme="dark" defaultSelectedKeys={['1']} mode="inline">
             <Menu.Item key="1" icon={<DashboardOutlined />} onClick={handleMenuClick}>
               Dashboard
@@ -151,12 +171,8 @@ let Id = 0
         </Sider>
         <Layout className="site-layout">
           <Header className="site-layout-background" style={{ padding: 0 }} >
-            {
-              React.createElement(collapsed ? MenuUnfoldOutlined : MenuFoldOutlined, {
-                className: 'trigger',
-                onClick: toggle,
-              })
-            }
+            {toggleButton}
+            User Management Site
           </Header>
           <Content style={{ margin: '0 16px' }}>
             <Breadcrumb style={{ margin: '16px 0' }}>
