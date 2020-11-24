@@ -41,27 +41,27 @@ export const UserForm = (props) => {
                 <Form.Item label="UserId"  name="UserId" >
                     <Title level={4}>{editingMode ? activeUser.user_id : users.length +1} </Title>
                 </Form.Item>
-                <Form.Item label="UserName" name="username" rules={[{ required : true , message : 'UserName Required!'}]}>
+                <Form.Item label="UserName" name="username" rules={[{ required : true , message : 'UserName Required!'}]} hasFeedback>
                     <Input placeholder="Enter UserName" defaultValue={activeUser.username} onChange={(e) => onNameChange(e.target.value)} />
                 </Form.Item>
-                <Form.Item label="Email" name="email" rules={[{ required : true , type : 'email' , message : 'Email Required!'}]}>
+                <Form.Item label="Email" name="email" rules={[{ required : true , type : 'email' , message : 'Email Required!'}]} hasFeedback>
                     <Input placeholder="Enter Email" defaultValue={activeUser.email} onChange={(e) => onEmailChange(e.target.value)} />
                 </Form.Item>
-                <Form.Item label="Enabled" name="enabled" rules={[{ required : true , message : 'Status Required!'}]}>
+                <Form.Item label="Enabled" name="enabled" rules={[{ required : true , message : 'Status Required!'}]} hasFeedback>
                     <Select placeholder="---Select Option---" name="enabled" defaultValue={activeUser.enabled} onChange={onStatusChange} >
                         <option value="True">True</option>
                         <option value="False">False</option>
                     </Select>
                 </Form.Item>
                 <Form.Item label="Password" name="password" rules={[{ required : true , message : 'Password Required!'}  ,
-                    () => ({ validator(rule, value) { if ( value.length >= 5 ) { return Promise.resolve(); }
+                    () => ({ validator(rule, value) { if (!value || value.length >= 5 ) { return Promise.resolve(); }
                     return Promise.reject('Password Is Too Short!'); }, })]} hasFeedback>
-                    <Input.Password placeholder="Input password" onChange={(e) => onPasswordChange(e.target.value)} />         
+                    <Input.Password placeholder="Enter password" onChange={(e) => onPasswordChange(e.target.value)} />         
                 </Form.Item>
                 <Form.Item label="Comfirm Password" name="comfirmPassword" rules={[{ required : true , message : 'Password Required!'} , 
                      ({ getFieldValue }) => ({ validator(rule, value) { if (!value || getFieldValue('password') === value) { return Promise.resolve(); }
                     return Promise.reject('Passwords Did Not Match!'); }, }),]} dependencies={['password']} hasFeedback > 
-                    <Input.Password placeholder="Input password" onChange={(e) => onPasswordChange(e.target.value)} />         
+                    <Input.Password placeholder="Re-Enter password" />         
                 </Form.Item>
                 <Form.Item {...tailLayout}>
                     <Button type="primary" htmlType="submit" >Add</Button>

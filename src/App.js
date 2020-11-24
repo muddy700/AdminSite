@@ -62,13 +62,14 @@ let Id = 0
         setUsers(newUsersList)
         // setRender(3)
         setEditingMode(false)
+        message.success(activeUser.username + ' Edited SuccessFull')
       }
 
       else{
         
         Id += 1
         setUsers([...users , {...activeUser , key : Id , user_id : Id}])
-        message.success('User Added Successful')
+        message.success(activeUser.username + ' Added Successful')
       }
       setActiveUser({ })
       form.resetFields()

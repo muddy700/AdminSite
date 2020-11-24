@@ -1,4 +1,4 @@
-import {Card , Form , Button , Input , Space , message} from 'antd'
+import {Card , Form , Button , Input , message} from 'antd'
 import React , { useState} from 'react'
 import '../index.css'
 
@@ -21,9 +21,7 @@ const tailLayout = {
 export const Settings = (props) => {
     
     const{ loggedUser , setloggedUser} = props
-    const [oldPass, setoldPass] = useState('')
     const [newPass, setnewPass] = useState('')
-    const [reNewPass, setreNewPass] = useState('')
     const [form] =Form.useForm()
 
     const onFinish = () => {
@@ -31,32 +29,28 @@ export const Settings = (props) => {
         setloggedUser({...loggedUser , password : newPass})
         message.success('Password Changed SuccessFull')
     }
-    const handleOldPassword = (value) => {
-        setoldPass(value)
-    }
+
     const handleNewPassword = (value) => {
         setnewPass(value)
     }
-    const handleComfirmPassword = (value) => {
-        setreNewPass(value)
-    }
+    
     return(
         <Card title="Change  Password" style={{width : 500}}>
             <Form   {...layout} name="basic" initialValues={{ remember: false }} onFinish={onFinish}  form={form}>
                 <Form.Item label="Old Password" name="oldPass" rules={[{ required : true , message : 'Password Required!'} , 
-                    () => ({ validator(rule, value) { if ( value === loggedUser.password ) { return Promise.resolve(); }
+                    () => ({ validator(rule, value) { if ( !value || value === loggedUser.password ) { return Promise.resolve(); }
                     return Promise.reject('Wrong Password!'); }, }) ]} hasFeedback>
-                    <Input.Password placeholder="Enter Old Password" onChange={(e) => handleOldPassword(e.target.value)} />         
+                    <Input.Password placeholder="Enter Old Password"/>         
                 </Form.Item>
                 <Form.Item label="New Password" name="newPass" rules={[{ required : true , message : 'Password Required!'} ,
-                    () => ({ validator(rule, value) { if ( value.length >= 5 ) { return Promise.resolve(); }
+                    () => ({ validator(rule, value) { if ( !value || value.length >= 5 ) { return Promise.resolve(); }
                     return Promise.reject('Password Is Too Short!'); }, })]} hasFeedback>
                     <Input.Password placeholder="Enter New Password" onChange={(e) => handleNewPassword(e.target.value)} />         
                 </Form.Item>
                 <Form.Item label="Repeat New Password" name="reNewPass" rules={[ { required : true , message : 'Password Required!'} , 
                      ({ getFieldValue }) => ({ validator(rule, value) { if (!value || getFieldValue('newPass') === value) { return Promise.resolve(); }
                     return Promise.reject('Passwords Did Not Match!'); }, }),]} dependencies={['newPass']} hasFeedback >
-                    <Input.Password placeholder="Re-Enter New Password" onChange={(e) => handleComfirmPassword(e.target.value)} />         
+                    <Input.Password placeholder="Re-Enter New Password"/>         
                 </Form.Item>
                  <Form.Item {...tailLayout}>
                     <Button type="primary" htmlType="submit" >Save</Button>
