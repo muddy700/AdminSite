@@ -1,10 +1,10 @@
 import React from 'react'
-import { Card, Typography , Space , Spin  } from 'antd'
+import { Card, Typography , Space , Spin , Button } from 'antd'
 import { LoadingOutlined } from '@ant-design/icons';
 import '../index.css'
 
 export const Dashboard = (props) => {
-    const { users } = props
+    const { users , addUser  } = props
     const { Title } = Typography
     const enabled = users.filter((data) => data.enabled === 'True')
     const cardStyle = {width : 300 , backgroundColor : 'lightgrey' , textAlign : 'center'}
@@ -13,9 +13,11 @@ export const Dashboard = (props) => {
     const hasData = users.length > 0
     
     return(
-        <Space size={40}>
+        <Card loading={!hasData} bordered={false} style={{widows : 1300}}>
+        <Space size={30} >
+        <Button type="primary" onClick={addUser} >Add</Button>
             <Card hoverable title="Registered Users" style={cardStyle} >
-                <Title level={2}>{hasData ?  users.length : spinner } </Title>
+                <Title level={2}>{users.length}  </Title>
             </Card>
             <Card hoverable title="Enabled Users" style={cardStyle}>
                 <Title level={2}>{hasData ? enabled.length : spinner } </Title>
@@ -26,6 +28,6 @@ export const Dashboard = (props) => {
             <Card hoverable title="Online Users" style={cardStyle}>
                 <Title level={2}> 0 </Title>
             </Card>
-        </Space>
+        </Space> </Card>
     )
 }

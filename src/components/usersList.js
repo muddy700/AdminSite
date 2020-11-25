@@ -33,10 +33,7 @@ export const UsersList = (props) => {
         dataIndex: 'action1',
         render : (text , record) =>
         users.length >=1 ? (
-            // <Popconfirm title="Sure to delete?" onConfirm={() => deleteSingleUser(record.key)}>
-            //   <Button type="primary" onClick={() => editUserInfo(record.user_id)}> <EditFilled /> </Button>
               <Button type="primary" onClick={() => editUserInfo(record.user_id)}> <EditFilled /> </Button>
-            /* </Popconfirm> */
         ) : null,
     },
     {
@@ -52,7 +49,7 @@ export const UsersList = (props) => {
 ]
     
 
-const { users , setUsers , editUserInfo } = props
+const { users , pullUsers , editUserInfo } = props
 const [selectedRowKeys, setSelectedRowKeys] = useState([])
 const [loading , setloading ] = useState(false)
 const [selectedUsers , setselectedUsers ] = useState([])
@@ -64,41 +61,42 @@ const onSelectChange = (selectedRowKeys) => {
       setselectedUsers(selectedIds)
     }
     
-    const deleteSingleUser = (value) => {
-         setloading(true)
-         setTimeout(() => {
-            //  const remainingUsers = users.filter((data) => data.key !== value)
-            //  setUsers(remainingUsers)
-            //  setselectedUsers([])
-            //  setSelectedRowKeys([])
-            //  axios.delete('https://usbn.herokuapp.com/api/v1/users/${value}')
-            //      .then(res => {
-            //          console.log(res);
-            //          console.log(res.data);
-            //      })
-            const response =
-            //  await
-             API.delete('users/${value}');
-               console.log(response);
-               console.log(response.data);
+    const deleteSingleUser = async (value) => {
+        setloading(true)
+        let res = await API.delete('users/${value}');
+        if(res.status === 400){
+            message.error('Failed Again')
+            console.log(res.status)
+        }
+        console.log(res)
+        pullUsers()
 
+         setTimeout(() => {
+             setselectedUsers([])
+             setSelectedRowKeys([])
             message.success('1 User Deleted')
-            // https: //usbn.herokuapp.com/api/v1/users
              setloading(false)
          }, 500)
+
     }
 
-    const deleteUsers = () => {
+    const deleteUsers = async () => {
       setloading(true)
+      let res = []
+      for( let x = 0 ; x < selectedUsers.length ; x++){
+        res[x]  = await API.delete('users/${selectedUsers[x]}')
+      }
+      console.log(res)
+      pullUsers()
+
       setTimeout(  () => {
-      const remainingUsers = users.filter((data) => !selectedUsers.includes(data.user_id))
-      setUsers(remainingUsers)
       const deleted = selectedUsers.length
       message.success(deleted + ' Users Deleted')
       setselectedUsers([])
       setSelectedRowKeys([])
       setloading(false)
     } , 300)
+
     }
 
     const hasSelected = selectedUsers.length > 0

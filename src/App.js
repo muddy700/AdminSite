@@ -7,31 +7,13 @@ import { UserForm } from './components/userForm'
 import { Profile } from './components/profile'
 import React , { useState , useEffect } from 'react'
 import dp from './images/dp.jpg'
-import axios from 'axios'
 import './index.css'
 import API from  './api'
 
-// https: //usbn.herokuapp.com/api/v1/users
-
 const { Header, Content, Footer, Sider } = Layout
 const { SubMenu } = Menu
-let Id = 0
 
   const  App = () => {
-
-    // const initialUsers = [
-    //   { key : '1' , user_id: 1, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'False' }, 
-    //   { key : '2' , user_id: 2, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'False' }, 
-    //   { key : '3' , user_id: 3, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'False' }, 
-    //   { key : '4' , user_id: 4, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'False' }, 
-    //   { key : '5' , user_id: 5, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'True' }, 
-    //   { key : '6' , user_id: 6, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'True' }, 
-    //   { key : '7' , user_id: 7, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'True' }, 
-    //   { key : '8' , user_id: 8, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'True' }, 
-    //   { key : '9' , user_id: 9, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'True' }, 
-    //   { key : '10' , user_id: 10, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'True' }, 
-    //   { key : '11' , user_id: 11, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'True' }, 
-    // ]
 
     const loggedIn = { 
       firstName : 'MOHAMED' , 
@@ -53,46 +35,49 @@ let Id = 0
     const [form] = Form.useForm()
     const [loggedUser, setloggedUser] = useState(loggedIn)
 
-    const pullUsers = () => {
-        API.get('users')
-          .then(res => {
-            const persons = res.data;
-        setUsers(persons)
-          })
+    const pullUsers = async () => {
+      let res = await  API.get('users')
+      const persons = res.data
+      console.log(res)
+      const dataWithKey = persons.map((data) =>{
+                 return {...data , key : data.user_id}
+               } )
+        setUsers(dataWithKey)
     }
 
     useEffect(() => {
       pullUsers()
-    })
+    } , [users.length])
 
-    const onFinish = () => {
+    const onFinish = async () => {
+      // e.preventDefault()
+
       if(editingMode) { 
-        const newUsersList = users.map((data) => {
-          if(data.user_id === activeUser.user_id) {
-            return {...data , username : activeUser.username , email : activeUser.email , enabled : activeUser.enabled , password : activeUser.password}
-          }
-          else { return data}
-        })
-        setUsers(newUsersList)
-        // setRender(3)
+        let res = await API.put('users/${activeUser.user_id}' , {activeUser})
+        console.log(res)
         setEditingMode(false)
         message.success(activeUser.username + ' Edited SuccessFull')
       }
 
       else{
-        
-        // Id += 1
-        // setUsers([...users , {...activeUser , key : Id , user_id : Id}])
         message.success(activeUser.username + ' Added Successful')
-        // https: //usbn.herokuapp.com/api/v1/users/create
-        axios.post('https://usbn.herokuapp.com/api/v1/users/create', { activeUser })
-      .then(res => {
-        console.log(res);
-        console.log(res.data);
-      })
+        const newUser = {
+          username : activeUser.username , 
+          email : activeUser.email , 
+          password : activeUser.password , 
+          enabled : activeUser.enabled ,
+        }
+        let res = await  API.post('users/create', {newUser})
+        console.log(res)
       }
-      setActiveUser({ })
+      pullUsers()
       form.resetFields()
+    }
+
+    const addUser = async () => {
+        let res = await API.post('users/create' , {username : "Moudy"})
+        console.log(res)
+        pullUsers()
     }
 
     const toggle = () => {
@@ -118,8 +103,8 @@ let Id = 0
       }
 
       const userform = <UserForm activeUser={activeUser} setActiveUser={setActiveUser} onFinish={onFinish} form={form} users={users} editingMode={editingMode} />
-      const allUsers = <UsersList users={users} setUsers={setUsers}  editUserInfo={editUserInfo} />
-      const dashboard = <Dashboard users={users} />
+      const allUsers = <UsersList users={users} pullUsers={pullUsers}  editUserInfo={editUserInfo} />
+      const dashboard = <Dashboard users={users} addUser={addUser} />
       const settings = <Settings loggedUser={loggedUser} setloggedUser={setloggedUser} />
       const byId = <SingleUser />
       const profile = <Profile loggedUser={loggedUser} />
@@ -133,7 +118,7 @@ let Id = 0
           visible={editingMode}
           getContainer={false}
           style={{ position: 'absolute' }}
-          width="550" >
+          width="1100" >
           {userform}
         </Drawer>
 
