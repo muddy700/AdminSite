@@ -1,4 +1,4 @@
-import { DashboardOutlined , UserAddOutlined , TeamOutlined , UserOutlined , KeyOutlined , MenuFoldOutlined , MenuUnfoldOutlined } from '@ant-design/icons';
+import { DashboardOutlined , UserAddOutlined , TeamOutlined , LockOutlined , UserOutlined , MenuFoldOutlined , MenuUnfoldOutlined } from '@ant-design/icons';
 import { Layout , Menu , Breadcrumb , Drawer , Image , message , Form } from 'antd'
 import { UsersList , SingleUser } from './components/usersList'
 import { Dashboard } from './components/dashboard'
@@ -8,7 +8,7 @@ import { Profile } from './components/profile'
 import React , { useState , useEffect } from 'react'
 import dp from './images/dp.jpg'
 import './index.css'
-import API from  './api'
+import API, {fetchAllUsers, createUser , editUser } from  './api'
 
 const { Header, Content, Footer, Sider } = Layout
 const { SubMenu } = Menu
@@ -29,54 +29,70 @@ const { SubMenu } = Menu
     // const user ={ key : '1' , user_id: 1, username: 'Muddy',  email: 'mo@gmail.com', password: '1234', enabled: 'false' }
     const [editingMode, setEditingMode] = useState(false)
     const [collapsed , setCollapsed ] = useState(false)
-    const [activeUser , setActiveUser] = useState({})
+    const [activeId , setActiveId] = useState('')
     const [users, setUsers] = useState([])
     const [render , setRender ] = useState(1)
     const [form] = Form.useForm()
     const [loggedUser, setloggedUser] = useState(loggedIn)
 
     const pullUsers = async () => {
-      let res = await  API.get('users')
-      const persons = res.data
-      console.log(res)
-      const dataWithKey = persons.map((data) =>{
-                 return {...data , key : data.user_id}
-               } )
-        setUsers(dataWithKey)
+      try{
+         const users = await fetchAllUsers()
+         setUsers(users)
+      }catch(err){
+         if(err && err.response.data){
+           // error from the server
+           message.error('Server Error')
+         }else if (err.request){
+           // netwoerk errors
+           message.error('Network Error')
+         }else{
+           // Any other errors
+           message.error('Other Error')
+         }
+          // console.log('hyo => ' + err)
+          // message.error('No Internet Connection')
+        }
     }
 
     useEffect(() => {
       pullUsers()
-    } , [users.length])
+    } , [])
 
-    const onFinish = async () => {
+    const onFinish = async (activeUser) => {
       // e.preventDefault()
 
       if(editingMode) { 
-        let res = await API.put('users/${activeUser.user_id}' , {activeUser})
-        console.log(res)
-        setEditingMode(false)
-        message.success(activeUser.username + ' Edited SuccessFull')
-      }
-
-      else{
-        message.success(activeUser.username + ' Added Successful')
-        const newUser = {
-          username : activeUser.username , 
-          email : activeUser.email , 
-          password : activeUser.password , 
-          enabled : activeUser.enabled ,
+        const {comfirmPassword , ...rest} = activeUser
+        try {
+          const response = await editUser(activeId , rest)
+          console.log(response)
+          pullUsers()
+          
+        } catch (error) {
+          
         }
-        let res = await  API.post('users/create', {newUser})
-        console.log(res)
       }
-      pullUsers()
-      form.resetFields()
+      else{
+        try {
+          const {comfirmPassword , ...rest} = activeUser
+          const user = await createUser(rest)
+          setUsers([...users, user])
+          console.log(user)
+          form.resetFields()
+        } catch (error) {
+          if(error && error.response.data)
+           alert(JSON.stringify(error.response.data))
+        }
+      }
     }
 
     const addUser = async () => {
         let res = await API.post('users/create' , {username : "Moudy"})
         console.log(res)
+        if(res.status === 200){
+          message.success('I GOT IT!')
+        }
         pullUsers()
     }
 
@@ -91,18 +107,18 @@ const { SubMenu } = Menu
     const editUserInfo = (value) => {
 
         const selected = users.find((data) => data.user_id === value)
-        setActiveUser(selected)
+        setActiveId(selected.user_id)
         setEditingMode(true)
         form.setFieldsValue({ username : selected.username , email : selected.email , enabled : selected.enabled , password : selected.password , comfirmPassword : selected.password})
       }
 
       const onClose = () => {
         setEditingMode(false)
-        setActiveUser({})
+        setActiveId('')
         form.resetFields()
       }
 
-      const userform = <UserForm activeUser={activeUser} setActiveUser={setActiveUser} onFinish={onFinish} form={form} users={users} editingMode={editingMode} />
+      const userform = <UserForm activeId={activeId} setActiveId={setActiveId} onFinish={onFinish} form={form} users={users} editingMode={editingMode} />
       const allUsers = <UsersList users={users} pullUsers={pullUsers}  editUserInfo={editUserInfo} />
       const dashboard = <Dashboard users={users} addUser={addUser} />
       const settings = <Settings loggedUser={loggedUser} setloggedUser={setloggedUser} />
@@ -149,7 +165,7 @@ const { SubMenu } = Menu
             <Menu.Item key="5" icon={<UserOutlined />} onClick={handleMenuClick}>
               Profile
             </Menu.Item>
-            <Menu.Item key="6" icon={<KeyOutlined />} onClick={handleMenuClick}>
+            <Menu.Item key="6" icon={<LockOutlined />} onClick={handleMenuClick}>
               Change Password
             </Menu.Item>
           </Menu>

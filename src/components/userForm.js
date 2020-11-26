@@ -18,48 +18,37 @@ const tailLayout = {
 
 
 export const UserForm = (props) => {
-    const { activeUser , setActiveUser , onFinish , users , form , editingMode } = props
+    const { onFinish , users , form , editingMode , activeId } = props
     const { Title } = Typography
     const colStyle = { marginLeft : 60}
     const rowStyle = { marginTop : 10}
 
-    const onNameChange = (value) => {
-           setActiveUser({...activeUser , username : value })
-       }
-    const onEmailChange = (value) => {
-        setActiveUser({...activeUser , email : value})
-    }
-    const onStatusChange = (value) => {
-        setActiveUser({...activeUser , enabled : value})
-    }
-    const onPasswordChange = (value) => {
-        setActiveUser({...activeUser , password : value})
-    }
+
     return(
 
         <Card title={editingMode ? 'Edit User Info' : "Fill User Details"} >
-            <Form  {...layout} name="basic" initialValues={{ remember: false }} onFinish={(e) => onFinish(e)}  form={form}>
+            <Form  {...layout} name="basic" initialValues={{ remember: false }} onFinish={onFinish}  form={form}>
             <Row  style={rowStyle}>
                 <Col span={10} >
                     <Form.Item label="UserId"  name="UserId" >
-                        <Title level={4}>{editingMode ? activeUser.user_id : users.length +1} </Title>
+                        <Title level={4}>{activeId !== ''? activeId : users.length +1} </Title>
                     </Form.Item>
                 </Col>
                 <Col span={10} style={colStyle}>
                     <Form.Item label="UserName" name="username" rules={[{ required : true , message : 'UserName Required!'}]} hasFeedback>
-                        <Input placeholder="Enter UserName" onChange={(e) => onNameChange(e.target.value)} />
+                        <Input placeholder="Enter UserName" />
                     </Form.Item>
                 </Col>
             </Row>
             <Row style={rowStyle}>
                 <Col span={10} >
                     <Form.Item label="Email" name="email" rules={[{ required : true , type : 'email' , message : 'Email Required!'}]} hasFeedback>
-                        <Input placeholder="Enter Email" onChange={(e) => onEmailChange(e.target.value)} />
+                        <Input placeholder="Enter Email" />
                     </Form.Item>
                 </Col>
                 <Col span={10} style={colStyle}>
                     <Form.Item label="Enabled" name="enabled" rules={[{ required : true , message : 'Status Required!'}]} hasFeedback>
-                        <Select placeholder="---Select Option---" name="enabled" onChange={onStatusChange} >
+                        <Select placeholder="---Select Option---" name="enabled"  >
                             <option value={true}>True</option>
                             <option value={false}>False</option>
                         </Select>
@@ -71,7 +60,7 @@ export const UserForm = (props) => {
                     <Form.Item label="Password" name="password" rules={[{ required : true , message : 'Password Required!'}  ,
                         () => ({ validator(rule, value) { if (!value || value.length >= 5 ) { return Promise.resolve(); }
                         return Promise.reject('Password Is Too Short!'); }, })]} hasFeedback>
-                        <Input.Password placeholder="Enter password" onChange={(e) => onPasswordChange(e.target.value)} />         
+                        <Input.Password placeholder="Enter password" />         
                     </Form.Item>
                 </Col>
                 <Col span={10} style={colStyle}>

@@ -1,10 +1,8 @@
 import { DeleteFilled, EditFilled } from '@ant-design/icons';
-import axios from 'axios'
 import '../index.css'
-// import axios from 'axios'
 import  API from '../api'
 import React , { useState } from 'react'
-import { Card , Table , Button , Popconfirm, InputNumber, message , Space} from 'antd'
+import { Card , Table , Button , Popconfirm, InputNumber, message , Space, Tag} from 'antd'
 
 
 export const UsersList = (props) => {
@@ -27,6 +25,10 @@ export const UsersList = (props) => {
     {
         title: 'Enabled',
         dataIndex: 'enabled',
+        render : (text , record) => (
+            <Tag color={record.enabled ? 'green' : 'red'} >{record.enabled ? 'Enabled' : "Disabled"}</Tag>
+        )
+
     },
     {
         title: 'Action1',
@@ -53,38 +55,39 @@ const { users , pullUsers , editUserInfo } = props
 const [selectedRowKeys, setSelectedRowKeys] = useState([])
 const [loading , setloading ] = useState(false)
 const [selectedUsers , setselectedUsers ] = useState([])
+const [found, setfound] = useState('')
 
 const onSelectChange = (selectedRowKeys) => {
       setSelectedRowKeys(selectedRowKeys)
-      const selected = users.filter((data) => selectedRowKeys.includes(data.key))
+      const selected = users.filter((data) => selectedRowKeys.includes(data.user_id))
       const selectedIds = selected.map((data) => {return data.user_id})
       setselectedUsers(selectedIds)
     }
     
     const deleteSingleUser = async (value) => {
         setloading(true)
-        let res = await API.delete('users/${value}');
-        if(res.status === 400){
-            message.error('Failed Again')
-            console.log(res.status)
+        try{
+            let res = await API.delete(`users/${value}`);
+            if(res.status === 200){
+                message.success('DELETED.......!!!!')
+                // console.log(res)
+                setloading(false)
+                setselectedUsers([])
+                setSelectedRowKeys([])
+            }
+            // console.log(res)
+            pullUsers()
         }
-        console.log(res)
-        pullUsers()
-
-         setTimeout(() => {
-             setselectedUsers([])
-             setSelectedRowKeys([])
-            message.success('1 User Deleted')
-             setloading(false)
-         }, 500)
-
+        catch (err){
+            message.error('User Not Deleted')
+        }
     }
 
     const deleteUsers = async () => {
       setloading(true)
       let res = []
       for( let x = 0 ; x < selectedUsers.length ; x++){
-        res[x]  = await API.delete('users/${selectedUsers[x]}')
+        res[x]  = await API.delete(`users/${selectedUsers[x]}`)
       }
       console.log(res)
       pullUsers()
@@ -98,12 +101,30 @@ const onSelectChange = (selectedRowKeys) => {
     } , 300)
 
     }
+    const findById = async (value) =>{
+        // console.log(value)
+        try{
+            let res = await API.get(`users/${value}`)
+            if(res.status === 200) {
+                // console.log(res.data)
+                const data = res.data
+                // console.log('Entered ' + value + ' Got ' + data.user_id + ' en ' + data.enabled)
+                // message.success('name : ' + data.username )
+                setfound({...found , username : data.username , user_id : data.user_id , email : data.email , enabled : data.enabled , password : data.password , key : data.user_id })
+                // console.log(data.username)
+         }
+        }
+        catch (err){
+            message.error('User Not Found')
+        }
+        
+    }
 
     const hasSelected = selectedUsers.length > 0
     const selectedSize = selectedUsers.length
     const tableTitle = selectedUsers.length === 1 ? ' User Selected' : ' Users Selected'
-     const rowSelection = {
 
+    const rowSelection = {
          selectedRowKeys,
          onChange: onSelectChange,
      }
@@ -112,7 +133,9 @@ const onSelectChange = (selectedRowKeys) => {
         <Card title="All Users">
             <Button type="primary" disabled={!hasSelected} onClick={deleteUsers} loading={loading}>Delete</Button>
             <span style={{ marginLeft: 8 }} >{hasSelected ? selectedSize + tableTitle : '' } </span>
-            <Table rowSelection={rowSelection} columns={columns} dataSource={users} pagination={{defaultPageSize : 5}}/>
+            <InputNumber placeholder="Enter User Id" onChange={findById} style={{width : 200 }} />
+            <Card>{found.user_id} == {found.username} == {found.email} == {found.password} == {found.enabled} </Card>
+            <Table rowSelection={rowSelection} columns={columns} dataSource={users} pagination={{defaultPageSize : 5}} rowKey={(record) => record.user_id}/>
         </Card>
     )
 }
@@ -122,9 +145,7 @@ export const SingleUser = () => {
     return(
         <Space>
             <Card title="Search By Id" style={{ width : 200}}>
-                <InputNumber placeholder="Enter User Id" />
             </Card>
-            {/* <Table /> */}
         </Space>
     )
 }
