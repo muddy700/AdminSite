@@ -1,9 +1,4 @@
-import axios from 'axios';
-
-export default axios.create({
-    baseURL: '/api/v1/'
-});
-
+import baseLink from './base'
 // const fetchUsers = async() =>{
 
 //     // callbacks
@@ -21,19 +16,24 @@ export default axios.create({
 // }
 
 export async function fetchAllUsers(){
-   const response = await axios.get("/api/v1/users")
+   const response = await baseLink.get("users")
    return response.data
 }
 
 export async function createUser(payload){
-const response = await axios.post("/api/v1/users/create",null,{
+const response = await baseLink.post("users/create",null,{
     params: payload
 })
-    return response.data
+    return response
+}
+
+export async function deleteUser(id){
+    const response = await baseLink.delete(`users/${id}`)
+    return response
 }
 
 export async function editUser(id , payload){
-const response = await axios.put(`/api/v1/users/create/${id}`,null,{
+const response = await baseLink.put(`users/create/${id}`,null,{
     params: payload
 })
     return response.data

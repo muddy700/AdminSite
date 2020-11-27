@@ -18,10 +18,11 @@ const tailLayout = {
 
 
 export const UserForm = (props) => {
-    const { onFinish , users , form , editingMode , activeId } = props
+    const { onFinish , users , form , editingMode , activeId , loading } = props
     const { Title } = Typography
     const colStyle = { marginLeft : 60}
     const rowStyle = { marginTop : 10}
+    const buttonTitle = editingMode ? 'Save' : 'Add'
 
 
     return(
@@ -72,7 +73,7 @@ export const UserForm = (props) => {
                 </Col>
             </Row>
                 <Form.Item {...tailLayout}>
-                    <Button type="primary" htmlType="submit" >Add</Button>
+                    <Button type="primary" htmlType="submit" loading={loading}> {buttonTitle} </Button>
                 </Form.Item>
             </Form>
 

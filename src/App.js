@@ -8,7 +8,8 @@ import { Profile } from './components/profile'
 import React , { useState , useEffect } from 'react'
 import dp from './images/dp.jpg'
 import './index.css'
-import API, {fetchAllUsers, createUser , editUser } from  './api'
+import  { fetchAllUsers, createUser  } from  './api'
+import baseLink from './base'
 
 const { Header, Content, Footer, Sider } = Layout
 const { SubMenu } = Menu
@@ -34,6 +35,8 @@ const { SubMenu } = Menu
     const [render , setRender ] = useState(1)
     const [form] = Form.useForm()
     const [loggedUser, setloggedUser] = useState(loggedIn)
+    const [loading, setloading] = useState(false)
+    const [addUser, setaddUser] = useState(false)
 
     const pullUsers = async () => {
       try{
@@ -61,39 +64,50 @@ const { SubMenu } = Menu
 
     const onFinish = async (activeUser) => {
       // e.preventDefault()
+      setloading(true)
 
-      if(editingMode) { 
-        const {comfirmPassword , ...rest} = activeUser
+      if(editingMode) {   //OnEditing Existing User
+        const {comfirmPassword , UserId ,  ...rest} = activeUser
         try {
-          const response = await editUser(activeId , rest)
+          const response = await baseLink.put(`users/${activeId}` , null , { params : rest })
           console.log(response)
-          pullUsers()
+          // pullUsers()
+          if(response.status === 200 ) {
+            message.success('User edited Successfull')
+            form.resetFields()
+            setEditingMode(false)
+            setloading(false)
+            const newUsers = users.map((user) => {
+              if(user.user_id === activeId ){
+                return response.data
+              }
+              else return user
+            })
+            setUsers(newUsers)
+          }
           
         } catch (error) {
           
         }
       }
-      else{
+
+      else{ //OnAdding New User
         try {
-          const {comfirmPassword , ...rest} = activeUser
-          const user = await createUser(rest)
-          setUsers([...users, user])
-          console.log(user)
-          form.resetFields()
+          const {comfirmPassword , UserId , ...rest} = activeUser
+          const response = await createUser(rest)
+          if(response.status === 200){
+            message.success('One User Added Successful')
+            setUsers([...users, response.data])
+            console.log(response)
+            form.resetFields()
+            setaddUser(false)
+            setloading(false)
+          }
         } catch (error) {
           if(error && error.response.data)
            alert(JSON.stringify(error.response.data))
         }
       }
-    }
-
-    const addUser = async () => {
-        let res = await API.post('users/create' , {username : "Moudy"})
-        console.log(res)
-        if(res.status === 200){
-          message.success('I GOT IT!')
-        }
-        pullUsers()
     }
 
     const toggle = () => {
@@ -115,23 +129,28 @@ const { SubMenu } = Menu
       const onClose = () => {
         setEditingMode(false)
         setActiveId('')
+        setaddUser(false)
         form.resetFields()
       }
+      const showUserForm = () => {
+        setaddUser(true)
+      }
 
-      const userform = <UserForm activeId={activeId} setActiveId={setActiveId} onFinish={onFinish} form={form} users={users} editingMode={editingMode} />
-      const allUsers = <UsersList users={users} pullUsers={pullUsers}  editUserInfo={editUserInfo} />
-      const dashboard = <Dashboard users={users} addUser={addUser} />
+      const showDrawer = addUser ? addUser : editingMode
+      const userform = <UserForm activeId={activeId} setActiveId={setActiveId} onFinish={onFinish} form={form} users={users} editingMode={editingMode} loading={loading} />
+      const allUsers = <UsersList users={users} setUsers={setUsers}  editUserInfo={editUserInfo} showUserForm={showUserForm} />
+      const dashboard = <Dashboard users={users} />
       const settings = <Settings loggedUser={loggedUser} setloggedUser={setloggedUser} />
       const byId = <SingleUser />
       const profile = <Profile loggedUser={loggedUser} />
       const toggleButton = collapsed ? <MenuUnfoldOutlined className="trigger" onClick={toggle} /> : <MenuFoldOutlined className="trigger"  onClick={toggle} />
 
       const draw = <Drawer
-          title="Editing Mode"
+          title={addUser ? '' : 'Editing Mode'}
           placement="right"
           closable={false}
           onClose={onClose}
-          visible={editingMode}
+          visible={showDrawer}
           getContainer={false}
           style={{ position: 'absolute' }}
           width="1100" >

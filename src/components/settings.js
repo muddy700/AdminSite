@@ -28,7 +28,7 @@ export const Settings = (props) => {
     
     return(
         <Card title="Change  Password" >
-            <Form   name="basic" initialValues={{ remember: false }} onFinish={onFinish}  form={form}>
+            <Form   name="basic2" initialValues={{ remember: false }} onFinish={onFinish}  form={form}>
                 <Row style={rowStyle}>
                     <Col span={22} style={colStyle}>
 

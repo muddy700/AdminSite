@@ -1,6 +1,7 @@
 import { DeleteFilled, EditFilled } from '@ant-design/icons';
 import '../index.css'
-import  API from '../api'
+import  { deleteUser } from '../api'
+import baseLink from '../base'
 import React , { useState } from 'react'
 import { Card , Table , Button , Popconfirm, InputNumber, message , Space, Tag} from 'antd'
 
@@ -28,7 +29,6 @@ export const UsersList = (props) => {
         render : (text , record) => (
             <Tag color={record.enabled ? 'green' : 'red'} >{record.enabled ? 'Enabled' : "Disabled"}</Tag>
         )
-
     },
     {
         title: 'Action1',
@@ -49,9 +49,9 @@ export const UsersList = (props) => {
         ) : null,
     },
 ]
-    
 
-const { users , pullUsers , editUserInfo } = props
+
+const { users , setUsers , editUserInfo , showUserForm } = props
 const [selectedRowKeys, setSelectedRowKeys] = useState([])
 const [loading , setloading ] = useState(false)
 const [selectedUsers , setselectedUsers ] = useState([])
@@ -67,44 +67,44 @@ const onSelectChange = (selectedRowKeys) => {
     const deleteSingleUser = async (value) => {
         setloading(true)
         try{
-            let res = await API.delete(`users/${value}`);
+            let res = await deleteUser(value)
+
             if(res.status === 200){
-                message.success('DELETED.......!!!!')
-                // console.log(res)
+                message.success('One User Deletd Successfull.....!!!!')
                 setloading(false)
-                setselectedUsers([])
-                setSelectedRowKeys([])
+                const usersList = users.filter((user) => user.user_id !== value)
+                setUsers(usersList)
             }
-            // console.log(res)
-            pullUsers()
         }
         catch (err){
             message.error('User Not Deleted')
         }
     }
-
+    
     const deleteUsers = async () => {
-      setloading(true)
+        setloading(true)
       let res = []
       for( let x = 0 ; x < selectedUsers.length ; x++){
-        res[x]  = await API.delete(`users/${selectedUsers[x]}`)
-      }
-      console.log(res)
-      pullUsers()
-
-      setTimeout(  () => {
-      const deleted = selectedUsers.length
-      message.success(deleted + ' Users Deleted')
-      setselectedUsers([])
-      setSelectedRowKeys([])
-      setloading(false)
-    } , 300)
-
+        res[x]  = await baseLink.delete(`users/${selectedUsers[x]}`)
     }
-    const findById = async (value) =>{
-        // console.log(value)
-        try{
-            let res = await API.get(`users/${value}`)
+      console.log(res)
+    //   pullUsers()
+    if(res[setselectedUsers.length -1].status === 200) {
+
+        const remainingUsers = users.filter((user) => !selectedUsers.includes(user.user_id))
+        setUsers(remainingUsers)
+        const deleted = selectedUsers.length
+        message.success(deleted + ' Users Deleted')
+        setselectedUsers([])
+        setSelectedRowKeys([])
+        setloading(false)
+    }
+
+}
+const findById = async (value) =>{
+    // console.log(value)
+    try{
+            let res = await baseLink.get(`users/${value}`)
             if(res.status === 200) {
                 // console.log(res.data)
                 const data = res.data
@@ -116,26 +116,30 @@ const onSelectChange = (selectedRowKeys) => {
         }
         catch (err){
             message.error('User Not Found')
+            setfound('')
         }
         
+        
     }
-
+    
     const hasSelected = selectedUsers.length > 0
     const selectedSize = selectedUsers.length
     const tableTitle = selectedUsers.length === 1 ? ' User Selected' : ' Users Selected'
+    const trigger = loading ? loading : hasSelected
 
-    const rowSelection = {
-         selectedRowKeys,
-         onChange: onSelectChange,
-     }
-
-    return(
-        <Card title="All Users">
-            <Button type="primary" disabled={!hasSelected} onClick={deleteUsers} loading={loading}>Delete</Button>
+        const rowSelection = {
+            selectedRowKeys,
+            onChange: onSelectChange,
+        }
+        
+        return(
+            <Card title="All Users">
+            <Button type="primary" disabled={!trigger} onClick={deleteUsers} loading={loading}>Delete</Button>
             <span style={{ marginLeft: 8 }} >{hasSelected ? selectedSize + tableTitle : '' } </span>
-            <InputNumber placeholder="Enter User Id" onChange={findById} style={{width : 200 }} />
-            <Card>{found.user_id} == {found.username} == {found.email} == {found.password} == {found.enabled} </Card>
-            <Table rowSelection={rowSelection} columns={columns} dataSource={users} pagination={{defaultPageSize : 5}} rowKey={(record) => record.user_id}/>
+            <InputNumber placeholder="Enter User Id To search" onChange={findById} style={{width : 200 , marginLeft : 400}} />
+            <Button type="primary" style={{float : "right"}} onClick={showUserForm}>Create New User</Button>
+            <Card hidden={found === ''}>{found === '' ? ' User Not Found' : found.user_id + ' == ' + found.username + ' == ' + found.email + ' == ' + found.password + ' == ' + found.enabled} </Card>
+            <Table rowSelection={rowSelection} columns={columns} dataSource={users} pagination={{defaultPageSize : 5}} rowKey={(record) => record.user_id} />
         </Card>
     )
 }
