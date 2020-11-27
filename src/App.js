@@ -1,6 +1,6 @@
-import { DashboardOutlined , UserAddOutlined , TeamOutlined , LockOutlined , UserOutlined , MenuFoldOutlined , MenuUnfoldOutlined } from '@ant-design/icons';
+import { DashboardOutlined , SettingOutlined , TeamOutlined , UserOutlined , MenuFoldOutlined , MenuUnfoldOutlined } from '@ant-design/icons';
 import { Layout , Menu , Breadcrumb , Drawer , Image , message , Form } from 'antd'
-import { UsersList , SingleUser } from './components/usersList'
+import { UsersList  } from './components/usersList'
 import { Dashboard } from './components/dashboard'
 import { Settings } from './components/settings'
 import { UserForm } from './components/userForm'
@@ -8,11 +8,10 @@ import { Profile } from './components/profile'
 import React , { useState , useEffect } from 'react'
 import dp from './images/dp.jpg'
 import './index.css'
-import  { fetchAllUsers, createUser  } from  './api'
+import  { fetchAllUsers, createUser , editUser } from  './api'
 import baseLink from './base'
 
 const { Header, Content, Footer, Sider } = Layout
-const { SubMenu } = Menu
 
   const  App = () => {
 
@@ -70,6 +69,7 @@ const { SubMenu } = Menu
         const {comfirmPassword , UserId ,  ...rest} = activeUser
         try {
           const response = await baseLink.put(`users/${activeId}` , null , { params : rest })
+          // const response = await editUser(activeId , rest)
           console.log(response)
           // pullUsers()
           if(response.status === 200 ) {
@@ -87,7 +87,7 @@ const { SubMenu } = Menu
           }
           
         } catch (error) {
-          
+          console.log(error)
         }
       }
 
@@ -141,7 +141,7 @@ const { SubMenu } = Menu
       const allUsers = <UsersList users={users} setUsers={setUsers}  editUserInfo={editUserInfo} showUserForm={showUserForm} />
       const dashboard = <Dashboard users={users} />
       const settings = <Settings loggedUser={loggedUser} setloggedUser={setloggedUser} />
-      const byId = <SingleUser />
+      // const byId = <SingleUser />
       const profile = <Profile loggedUser={loggedUser} />
       const toggleButton = collapsed ? <MenuUnfoldOutlined className="trigger" onClick={toggle} /> : <MenuFoldOutlined className="trigger"  onClick={toggle} />
 
@@ -159,11 +159,9 @@ const { SubMenu } = Menu
 
     const components = {
       1 : dashboard , 
-      2 : userform , 
-      3 : allUsers , 
-      4 : byId , 
-      5 : profile , 
-      6 : settings
+      2 : allUsers , 
+      3 : profile , 
+      4 : settings
     }
 
    return (
@@ -174,17 +172,13 @@ const { SubMenu } = Menu
             <Menu.Item key="1" icon={<DashboardOutlined />} onClick={handleMenuClick}>
               Dashboard
             </Menu.Item>
-            <Menu.Item key="2" icon={<UserAddOutlined />} onClick={handleMenuClick}>
-              Add User
+            <Menu.Item key="2" icon={<TeamOutlined />} onClick={handleMenuClick}>
+              View Users
             </Menu.Item>
-            <SubMenu key="sub1" icon={<TeamOutlined />} title="View Users">
-              <Menu.Item key="3" onClick={handleMenuClick}>All Users</Menu.Item>
-              <Menu.Item key="4" onClick={handleMenuClick}>By Id</Menu.Item>
-            </SubMenu>
-            <Menu.Item key="5" icon={<UserOutlined />} onClick={handleMenuClick}>
+            <Menu.Item key="3" icon={<UserOutlined />} onClick={handleMenuClick}>
               Profile
             </Menu.Item>
-            <Menu.Item key="6" icon={<LockOutlined />} onClick={handleMenuClick}>
+            <Menu.Item key="4" icon={<SettingOutlined />} onClick={handleMenuClick}>
               Change Password
             </Menu.Item>
           </Menu>

@@ -1,3 +1,4 @@
+import  axios from 'axios'
 import baseLink from './base'
 // const fetchUsers = async() =>{
 
@@ -5,19 +6,16 @@ import baseLink from './base'
 //     //  axios.get("users").then(response =>{
 //     //         response.data
 //     //  }).catch()
-
-
-//    try {
-    
-//        console.log(response.data)
-//    } catch (error) {
-        
-//    }
 // }
 
 export async function fetchAllUsers(){
    const response = await baseLink.get("users")
    return response.data
+}
+
+export async function getSingleUser(id){
+    const response = await baseLink.get(`users/${id}`)
+    return response
 }
 
 export async function createUser(payload){
@@ -39,13 +37,9 @@ const response = await baseLink.put(`users/create/${id}`,null,{
     return response.data
 }
 
-// const ids = [1,2,3,5]
+export async function deleteMult(payloasds){
+    const requests = payloasds.map((item) => baseLink.delete(`users/${item}`))
+   const  responseArray = await axios.all([...requests])
+   return responseArray
 
-
-
-// async function deleteMult(payloasds){
-//     const requests = payloasds.map((item) => axios.delete(`users/${item}`))
-//     responseArray = await axios.all([...requests])
-
-// }
-// axios.all([...requests])
+}
