@@ -68,11 +68,8 @@ const { Header, Content, Footer, Sider } = Layout
       if(editingMode) {   //OnEditing Existing User
         const {comfirmPassword , UserId ,  ...rest} = activeUser
         try {
-          const response = await baseLink.put(`users/${activeId}` , null , { params : rest })
-          // const response = await editUser(activeId , rest)
-          console.log(response)
-          // pullUsers()
-          if(response.status === 200 ) {
+          // const response = await baseLink.put(`users/${activeId}` , null , { params : rest })
+          const response = await editUser(activeId , rest)
             message.success('User edited Successfull')
             form.resetFields()
             setEditingMode(false)
@@ -84,7 +81,6 @@ const { Header, Content, Footer, Sider } = Layout
               else return user
             })
             setUsers(newUsers)
-          }
           
         } catch (error) {
           console.log(error)

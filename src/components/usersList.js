@@ -1,7 +1,7 @@
 import { DeleteFilled, EditFilled } from '@ant-design/icons';
 import '../index.css'
 import  { deleteUser , getSingleUser , deleteMult} from '../api'
-import React , { useState } from 'react'
+import React , { useEffect, useState , useCallback } from 'react'
 import { Card , Table , Button , Popconfirm, message , Input , Tag} from 'antd'
 
 export const UsersList = (props) => {
@@ -54,6 +54,8 @@ const [loading , setloading ] = useState(false)
 const [selectedUsers , setselectedUsers ] = useState([])
 const [found, setfound] = useState('')
 const [searchingMode, setsearchingMode] = useState(false)
+const [searchString, setsearchString] = useState('')
+const [filteredUsers, setfilteredUsers] = useState([])
 const { Search } = Input
 
 const onSelectChange = (selectedRowKeys) => {
@@ -100,22 +102,16 @@ const deleteUsers = async () => {
             
         }
 }
+ const filterUser = useCallback((user) =>{
+ for (const property in user) {
+    if(user[property].toString().includes(searchString)) return  true
+ }
+ return false
+ },[searchString]) 
 
-const findById = async (value) =>{
-    setsearchingMode(true)
-    try{
-            const res = await getSingleUser(value)
-            if(res.status === 200) {
-                const data = res.data
-                setfound({...found , username : data.username , user_id : data.user_id , email : data.email , enabled : data.enabled , password : data.password , key : data.user_id })
-                setsearchingMode(false)
-         }
-        }
-        catch (err){
-            message.error('User Not Found')
-            setfound('')
-            setsearchingMode(false)
-        }
+const findById =  (e) =>{
+    setsearchString(e.target.value)
+
     }
     
     const hasSelected = selectedUsers.length > 0
@@ -128,14 +124,22 @@ const findById = async (value) =>{
             onChange: onSelectChange,
         }
         
+useEffect(() => {
+ if(searchString){
+ const filteredUsers = users.filter(filterUser)
+ setfilteredUsers(filteredUsers)
+ }
+
+}, [searchString, users,filterUser])
+
         return(
             <Card title="All Users">
             <Button type="primary" disabled={!trigger} onClick={deleteUsers} loading={loading}>Delete</Button>
             <span style={{ marginLeft: 8 }} >{hasSelected ? selectedSize + tableTitle : '' } </span>
-            <Search placeholder="Input User Id Then Press Enter"  onSearch={findById} loading={searchingMode}  style={{width : 255, marginLeft : 400}}/>
+            <Input placeholder="Input User Id Then Press Enter"  onChange={findById} loading={searchingMode}  style={{width : 255, marginLeft : 400}}/>
             <Button type="primary" style={{float : "right"}} onClick={showUserForm}>Create New User</Button>
             <Card hidden={!found.user_id}>{!found ? ' User Not Found' : found.user_id + ' == ' + found.username + ' == ' + found.email + ' == ' + found.password + ' == ' + found.enabled} </Card>
-            <Table rowSelection={rowSelection} columns={columns} dataSource={users} pagination={{defaultPageSize : 5}} rowKey={(record) => record.user_id} />
+            <Table rowSelection={rowSelection} columns={columns} dataSource={searchString ? filteredUsers : users} pagination={{defaultPageSize : 5}} rowKey={(record) => record.user_id} />
         </Card>
     )
 }

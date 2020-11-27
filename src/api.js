@@ -31,10 +31,10 @@ export async function deleteUser(id){
 }
 
 export async function editUser(id , payload){
-const response = await baseLink.put(`users/create/${id}`,null,{
+const response = await baseLink.put(`users/${id}`,null,{
     params: payload
 })
-    return response.data
+    return response
 }
 
 export async function deleteMult(payloasds){
@@ -43,3 +43,17 @@ export async function deleteMult(payloasds){
    return responseArray
 
 }
+
+
+// let users = [{name: "juma", age: 12}]
+// let user = {name: "kelvin"}
+// Object.keys(user)
+// let querystring = ""
+// function filterUser(user){
+
+//     for (let key in Object.keys(user)){
+//         if(user[key].toString().includes(querystring)) return true
+//     }
+//     return false
+// }
+// users.filter(filterUser) 
