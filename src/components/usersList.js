@@ -1,6 +1,6 @@
 import { DeleteFilled, EditFilled } from '@ant-design/icons';
 import '../index.css'
-import  { deleteUser , getSingleUser , deleteMult} from '../api'
+import  { deleteUser , deleteMult} from '../api'
 import React , { useEffect, useState , useCallback } from 'react'
 import { Card , Table , Button , Popconfirm, message , Input , Tag} from 'antd'
 
@@ -56,7 +56,6 @@ const [found, setfound] = useState('')
 const [searchingMode, setsearchingMode] = useState(false)
 const [searchString, setsearchString] = useState('')
 const [filteredUsers, setfilteredUsers] = useState([])
-const { Search } = Input
 
 const onSelectChange = (selectedRowKeys) => {
       setSelectedRowKeys(selectedRowKeys)
@@ -102,6 +101,7 @@ const deleteUsers = async () => {
             
         }
 }
+
  const filterUser = useCallback((user) =>{
  for (const property in user) {
     if(user[property].toString().includes(searchString)) return  true
@@ -109,7 +109,7 @@ const deleteUsers = async () => {
  return false
  },[searchString]) 
 
-const findById =  (e) =>{
+const findUser =  (e) =>{
     setsearchString(e.target.value)
 
     }
@@ -136,7 +136,7 @@ useEffect(() => {
             <Card title="All Users">
             <Button type="primary" disabled={!trigger} onClick={deleteUsers} loading={loading}>Delete</Button>
             <span style={{ marginLeft: 8 }} >{hasSelected ? selectedSize + tableTitle : '' } </span>
-            <Input placeholder="Input User Id Then Press Enter"  onChange={findById} loading={searchingMode}  style={{width : 255, marginLeft : 400}}/>
+            <Input placeholder="Type Anything To Search"  onChange={findUser} loading={searchingMode}  style={{width : 255, marginLeft : 400}}/>
             <Button type="primary" style={{float : "right"}} onClick={showUserForm}>Create New User</Button>
             <Card hidden={!found.user_id}>{!found ? ' User Not Found' : found.user_id + ' == ' + found.username + ' == ' + found.email + ' == ' + found.password + ' == ' + found.enabled} </Card>
             <Table rowSelection={rowSelection} columns={columns} dataSource={searchString ? filteredUsers : users} pagination={{defaultPageSize : 5}} rowKey={(record) => record.user_id} />

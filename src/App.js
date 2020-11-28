@@ -9,7 +9,6 @@ import React , { useState , useEffect } from 'react'
 import dp from './images/dp.jpg'
 import './index.css'
 import  { fetchAllUsers, createUser , editUser } from  './api'
-import baseLink from './base'
 
 const { Header, Content, Footer, Sider } = Layout
 
@@ -68,18 +67,12 @@ const { Header, Content, Footer, Sider } = Layout
       if(editingMode) {   //OnEditing Existing User
         const {comfirmPassword , UserId ,  ...rest} = activeUser
         try {
-          // const response = await baseLink.put(`users/${activeId}` , null , { params : rest })
           const response = await editUser(activeId , rest)
             message.success('User edited Successfull')
             form.resetFields()
             setEditingMode(false)
             setloading(false)
-            const newUsers = users.map((user) => {
-              if(user.user_id === activeId ){
-                return response.data
-              }
-              else return user
-            })
+            const newUsers = users.map((user) => user.user_id === activeId ?  response.data :  user)
             setUsers(newUsers)
           
         } catch (error) {
